@@ -48,6 +48,8 @@ export default {
     stageOnMission: 'On Mission',
     stageAssassinate: 'Assassinate',
     stageGiveExcalibur: 'Give Excalibur',
+    stageCheckLoyalty: 'Check loyalty',
+    stageAnnounceLoyalty: 'Announce loyalty',
     stageUseExcalibur: 'Use Excalibur',
     seconds: 'seconds',
     mainTimers: 'Main Timers',

@@ -10,6 +10,8 @@ export const STAGE_TIMER_DEFAULTS: Record<string, number> = {
   assassinate: 300, // 5 minutes for evil team to discuss and identify Merlin
   giveExcalibur: 20, // 20 seconds for leader to give Excalibur
   useExcalibur: 30, // 30 seconds to decide whether to use Excalibur
+  checkLoyalty: 120, // 120 second to check loyalty
+  announceLoyalty: 30, // 30 seconds to announce loyalty
 };
 
 /**

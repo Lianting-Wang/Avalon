@@ -1,4 +1,4 @@
-import type { Game } from '@/core/game';
+import type { Game, IPlayerInGame } from '@/core/game';
 import type { TTimerStage, TVoteOption, TMissionResult } from '@avalon/types';
 import type { TimerDurations } from '@avalon/types';
 import { STAGE_TIMER_DEFAULTS } from '@avalon/types/game/timer-defaults';
@@ -345,6 +345,12 @@ export class GameTimer {
         case 'assassinate':
           this.handleAssassinateTimeout();
           break;
+        case 'checkLoyalty':
+          this.handleLoyaltyCheckTimeout();
+          break;
+        case 'announceLoyalty':
+          this.handleAnnounceLoyaltyTimeout();
+          break;
       }
     } else {
       console.log(`[GameTimer] Timer expiration ignored - conditions not met. Stage: ${stage}`);
@@ -430,6 +436,111 @@ export class GameTimer {
           error instanceof Error ? error.message : error,
         );
       }
+    }
+  }
+
+  /**
+   * Handle loyalty check timeout - select random player
+   */
+  private handleLoyaltyCheckTimeout(): void {
+    const activePlayer = this.game.players.find((p) => p.features.waitForAction);
+    if (!activePlayer) {
+      console.log(`[GameTimer] LoyaltyCheck timeout: No active player found`);
+      return;
+    }
+    console.log(`[GameTimer] LoyaltyCheck timeout: Player ${activePlayer.userID} needs to check loyalty`);
+
+    // Active player is selected, deselect them
+    if (this.game.selectedPlayers.some((p) => p === activePlayer)) {
+      this.game.selectPlayer(activePlayer.userID, activePlayer.userID);
+    }
+
+    let typeOfCheck;
+    let functionOfValidatePlayers: (p: IPlayerInGame) => boolean;
+
+    if (this.game.players.some((p) => p.features.ladyOfLake === 'active')) {
+      functionOfValidatePlayers = (p: IPlayerInGame) => p.features.ladyOfLake === undefined;
+      typeOfCheck = 'ladyOfLake';
+    } else if (this.game.players.some((p) => p.features.ladyOfSea === 'active')) {
+      functionOfValidatePlayers = (p: IPlayerInGame) => p.features.ladyOfSea === undefined;
+      typeOfCheck = 'ladyOfSea';
+    } else if (this.game.players.some((p) => p.features.witchLoyalty === 'active')) {
+      functionOfValidatePlayers = (p: IPlayerInGame) => p !== activePlayer;
+      typeOfCheck = 'witch';
+    } else {
+      return;
+    }
+
+    // Filter out invalid selections (can't check/reveal own loyalty)
+    const validSelections = this.game.selectedPlayers.filter(functionOfValidatePlayers);
+
+    // Ensure exactly one valid player is selected
+    if (validSelections.length === 0) {
+      const otherPlayers = this.game.players.filter(functionOfValidatePlayers);
+      const randomPlayer = _.sample(otherPlayers);
+
+      if (randomPlayer) {
+        this.game.selectPlayer(activePlayer.userID, randomPlayer.userID);
+      }
+    } else if (validSelections.length > 1) {
+      // Too many valid players selected, keep only the first one
+      // Deselect all players except the first valid one
+      for (const player of this.game.selectedPlayers) {
+        if (player !== validSelections[0]) {
+          this.game.selectPlayer(activePlayer.userID, player.userID);
+        }
+      }
+    }
+
+    // Execute the action with the selected player
+    if (this.game.selectedPlayers.length > 0 && this.game.stage === 'checkLoyalty') {
+      if (typeOfCheck === 'ladyOfLake' && this.game.addons.ladyOfLake) {
+        this.game.addons.ladyOfLake.checkLoyalty(activePlayer.userID);
+      }
+
+      if (typeOfCheck === 'ladyOfSea' && this.game.addons.ladyOfSea) {
+        this.game.addons.ladyOfSea.checkLoyalty(activePlayer.userID);
+      }
+
+      if (typeOfCheck === 'witch' && this.game.addons.witch) {
+        this.game.addons.witch.checkLoyalty(activePlayer.userID);
+      }
+    }
+  }
+
+  /**
+   * Handle announce loyalty check timeout - show random loyalty
+   */
+  private handleAnnounceLoyaltyTimeout(): void {
+    const activePlayer = this.game.players.find((p) => p.features.waitForAction);
+    if (!activePlayer) {
+      console.log(`[GameTimer] AnnounceLoyalty timeout: No active player found`);
+      return;
+    }
+
+    let typeOfCheck;
+
+    if (this.game.players.some((p) => p.features.ladyOfLake === 'active')) {
+      typeOfCheck = 'ladyOfLake';
+    } else if (this.game.players.some((p) => p.features.ladyOfSea === 'active')) {
+      typeOfCheck = 'ladyOfSea';
+    } else if (this.game.players.some((p) => p.features.witchLoyalty === 'active')) {
+      typeOfCheck = 'witch';
+    } else {
+      return;
+    }
+
+    if (this.game.stage === 'announceLoyalty') {
+      const randomLoyalty = _.sample(['good', 'evil'])!;
+      if (this.game.addons.ladyOfLake && typeOfCheck === 'ladyOfLake') {
+        this.game.addons.ladyOfLake.announceLoyalty(activePlayer.userID, randomLoyalty as 'good' | 'evil');
+      } else if (this.game.addons.witch && typeOfCheck === 'witch') {
+        this.game.addons.witch.announceLoyalty(activePlayer.userID, randomLoyalty as 'good' | 'evil');
+      } else if (this.game.addons.ladyOfSea && typeOfCheck === 'ladyOfSea') {
+        this.game.addons.ladyOfSea.announceLoyalty(activePlayer.userID, 'good');
+      }
+
+      console.log(`[GameTimer] LoyaltyCheck timeout: Auto-announced ${randomLoyalty} loyalty`);
     }
   }
 

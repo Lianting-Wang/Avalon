@@ -161,6 +161,12 @@ export default defineComponent({
       { name: 'votingForTeam', label: t('options.stageVotingForTeam'), default: STAGE_TIMER_DEFAULTS.votingForTeam },
       { name: 'onMission', label: t('options.stageOnMission'), default: STAGE_TIMER_DEFAULTS.onMission },
       { name: 'assassinate', label: t('options.stageAssassinate'), default: STAGE_TIMER_DEFAULTS.assassinate },
+      { name: 'checkLoyalty', label: t('options.stageCheckLoyalty'), default: STAGE_TIMER_DEFAULTS.checkLoyalty },
+      {
+        name: 'announceLoyalty',
+        label: t('options.stageAnnounceLoyalty'),
+        default: STAGE_TIMER_DEFAULTS.announceLoyalty,
+      },
       { name: 'giveExcalibur', label: t('options.stageGiveExcalibur'), default: STAGE_TIMER_DEFAULTS.giveExcalibur },
       { name: 'useExcalibur', label: t('options.stageUseExcalibur'), default: STAGE_TIMER_DEFAULTS.useExcalibur },
     ]);

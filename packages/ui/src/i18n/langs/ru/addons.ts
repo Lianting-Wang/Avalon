@@ -48,6 +48,8 @@ export default {
     stageOnMission: 'На Миссии',
     stageAssassinate: 'Убийство',
     stageGiveExcalibur: 'Дать Экскалибур',
+    stageCheckLoyalty: 'Проверить лояльность',
+    stageAnnounceLoyalty: 'Объявить верность',
     stageUseExcalibur: 'Использовать Экскалибур',
     seconds: 'секунд',
     mainTimers: 'Основные таймеры',

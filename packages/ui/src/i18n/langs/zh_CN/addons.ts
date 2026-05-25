@@ -47,6 +47,8 @@ export default {
     stageOnMission: '任务进行中',
     stageAssassinate: '暗杀',
     stageGiveExcalibur: '给予神剑',
+    stageCheckLoyalty: '检查忠诚度',
+    stageAnnounceLoyalty: '宣布忠诚',
     stageUseExcalibur: '使用神剑',
     seconds: '秒',
     mainTimers: '主要计时器',

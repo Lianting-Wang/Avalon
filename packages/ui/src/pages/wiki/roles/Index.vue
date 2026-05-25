@@ -235,6 +235,15 @@ export default defineComponent({
 .role-image {
   width: 67%;
   border: 2px solid rgb(var(--v-theme-info));
+  aspect-ratio: 1;
+  overflow: hidden;
+
+  :deep(.image-content) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
 }
 
 .evil-role {

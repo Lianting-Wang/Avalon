@@ -72,7 +72,13 @@
         v-model="colorTheme"
         hide-details="auto"
       ></v-select>
-      <v-checkbox v-model="style" :hide-details="true" :label="$t('profile.animeMode')"> </v-checkbox>
+      <v-select
+        :label="$t('profile.imageStyle')"
+        :items="availableStyles"
+        class="w-100 mb-4"
+        v-model="imageStyle"
+        hide-details="auto"
+      ></v-select>
       <v-checkbox v-model="hideSpoilers" :hide-details="true" :label="$t('profile.hideSpoilersHint')"> </v-checkbox>
       <v-checkbox v-model="hideIndexInHistory" :hide-details="true" :label="$t('profile.hideIndexHint')"> </v-checkbox>
     </div>
@@ -177,12 +183,12 @@ export default defineComponent({
         this.$vuetify.theme.global.name = value === 'dark' ? 'darkTheme' : 'lightTheme';
       },
     },
-    style: {
+    imageStyle: {
       get() {
-        return this.$store.state.settings?.style === 'anime';
+        return this.$store.state.settings?.style || 'default';
       },
-      set(value: boolean) {
-        this.$store.commit('updateUserSettings', { key: 'style', value: value ? 'anime' : 'default' });
+      set(value: 'default' | 'legacy' | 'anime') {
+        this.$store.commit('updateUserSettings', { key: 'style', value });
       },
     },
     updateAvailable() {
@@ -197,6 +203,22 @@ export default defineComponent({
         {
           value: 'dark',
           title: this.$t('profile.darkTheme'),
+        },
+      ];
+    },
+    availableStyles() {
+      return [
+        {
+          value: 'default',
+          title: this.$t('profile.styleDefault'),
+        },
+        {
+          value: 'legacy',
+          title: this.$t('profile.styleLegacy'),
+        },
+        {
+          value: 'anime',
+          title: this.$t('profile.styleAnime'),
         },
       ];
     },

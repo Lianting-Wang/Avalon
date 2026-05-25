@@ -4,19 +4,34 @@ import { getImagePathByID } from '@/helpers/images';
 import { store } from '@/store';
 import { TVisibleRole } from '@avalon/types';
 
-export function calculateRoleUrl(role: TVisibleRole): string {
-  let type: 'roles' | 'roles/anime' = 'roles';
+// Список ролей, для которых есть legacy изображения
+const LEGACY_ROLES = ['merlin', 'minion', 'mordred', 'morgana', 'oberon', 'percival', 'servant'];
 
-  if (store.state.settings?.style === 'anime') {
-    type = 'roles/anime';
+export function calculateRoleUrl(role: TVisibleRole): string {
+  const style = store.state.settings?.style;
+  const roleSnake = snakeCase(role);
+
+  if (style === 'anime') {
+    return getImagePathByID('roles/anime', roleSnake);
   }
 
-  return getImagePathByID(type, snakeCase(role));
+  // Для legacy проверяем, есть ли изображение для этой роли
+  if (style === 'legacy' && LEGACY_ROLES.includes(roleSnake)) {
+    return getImagePathByID('roles/legacy', roleSnake);
+  }
+
+  return getImagePathByID('roles', roleSnake);
 }
 
 export function computedStyles(): string[] {
-  if (store.state.settings?.style === 'anime') {
+  const style = store.state.settings?.style;
+
+  if (style === 'anime') {
     return ['anime-style'];
+  }
+
+  if (style === 'legacy') {
+    return ['legacy-style'];
   }
 
   return [];

@@ -23,7 +23,7 @@ export interface IUserSettings {
   locale?: { value: TLanguage; isDefault: boolean };
   hideIndexInHistory?: boolean;
   colorTheme?: 'light' | 'dark';
-  style?: 'default' | 'anime';
+  style?: 'default' | 'legacy' | 'anime';
 }
 
 export type TAlerts = {

@@ -200,6 +200,50 @@ export default defineComponent({
   background-size: 100%;
 }
 
+.style-legacy {
+  &.icon-merlin {
+    background-image: getImagePathByID('roles/legacy', 'merlin');
+    background-size: 100%;
+    background-position: 0% 15%;
+  }
+
+  &.icon-minion {
+    background-image: getImagePathByID('roles/legacy', 'minion');
+    background-size: 100%;
+    background-position: 0% 40%;
+  }
+
+  &.icon-mordred {
+    background-image: getImagePathByID('roles/legacy', 'mordred');
+    background-size: 100%;
+    background-position: 0% 30%;
+  }
+
+  &.icon-morgana {
+    background-image: getImagePathByID('roles/legacy', 'morgana');
+    background-size: 100%;
+    background-position: 0% 10%;
+  }
+
+  &.icon-oberon {
+    background-image: getImagePathByID('roles/legacy', 'oberon');
+    background-size: 100%;
+    background-position: 0% 25%;
+  }
+
+  &.icon-percival {
+    background-image: getImagePathByID('roles/legacy', 'percival');
+    background-size: 105%;
+    background-position: 0% 20%;
+  }
+
+  &.icon-servant {
+    background-image: getImagePathByID('roles/legacy', 'servant');
+    background-size: 100%;
+    background-position: 0% 0%;
+  }
+}
+
 .style-anime {
   &.icon-merlin {
     background-image: getImagePathByID('roles/anime', 'merlin');

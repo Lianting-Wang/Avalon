@@ -1,12 +1,12 @@
 <template>
   <v-overlay v-model="overlay" :persistent="persistent" class="align-center justify-center modal-overlay">
-    <div class="modal-wrapper">
-      <v-card class="modal-card" elevation="8">
+    <div class="modal-wrapper" :style="maxWidth ? { maxWidth: maxWidth + 'px' } : {}">
+      <v-card class="modal-card" :style="maxWidth ? { maxWidth: maxWidth + 'px' } : {}" elevation="8">
         <v-btn @click="closeModal" class="close-btn" icon="close" color="text-primary" variant="text" size="small" />
         <div class="modal-header-bar">
           <slot name="header"></slot>
         </div>
-        <v-sheet :width="$props.width" class="modal-content">
+        <v-sheet :style="$props.width ? { width: $props.width + 'px', maxWidth: '100%' } : {}" class="modal-content">
           <div v-if="error" class="error-message mb-3">
             <span class="material-icons error-icon">error</span>
             <div>
@@ -40,6 +40,9 @@ export default defineComponent({
       type: String,
     },
     width: {
+      type: Number,
+    },
+    maxWidth: {
       type: Number,
     },
     persistent: {
@@ -126,6 +129,8 @@ export default defineComponent({
   background-color: rgba(var(--v-theme-error), 0.1);
   border-radius: 8px;
   color: rgb(var(--v-theme-error));
+  word-break: break-word;
+  overflow-wrap: break-word;
 
   .error-icon {
     font-size: 20px;

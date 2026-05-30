@@ -1,5 +1,5 @@
 <template>
-  <BaseModal v-model="overlay" :error="error" :additionalError="additionalError" @close="closeModal">
+  <BaseModal v-model="overlay" :error="error" :additionalError="additionalError" :width="476" @close="closeModal">
     <template #header>
       <h1 class="modal-header">{{ $t('avatars.modalHeader') }}</h1>
     </template>
@@ -8,6 +8,7 @@
         v-for="avatar in state"
         :key="avatar.id"
         :isSelected="avatar.id === selectedAvatar"
+        :hasError="avatar.id === errorAvatarId"
         :avatar="avatar"
         :selectAvatar="selectAvatar"
       />
@@ -35,6 +36,7 @@ export default defineComponent({
     const overlay = ref<boolean>(false);
     const error = ref<string>('');
     const additionalError = ref<string>('additionalError');
+    const errorAvatarId = ref<string | null>(null);
     const state = ref<IAvatarInfo[]>([]);
     const store = useStore();
     const { t } = useI18n();
@@ -71,6 +73,7 @@ export default defineComponent({
       if (!avatar.available) {
         error.value = 'avatarNotAvailable';
         additionalError.value = t('avatars.' + avatar.id + 'Hint');
+        errorAvatarId.value = avatar.id;
         return;
       }
 
@@ -79,9 +82,11 @@ export default defineComponent({
       if (result !== true) {
         error.value = result.error;
         additionalError.value = '';
+        errorAvatarId.value = avatar.id;
       } else {
         error.value = '';
         additionalError.value = '';
+        errorAvatarId.value = null;
       }
     };
 
@@ -89,6 +94,7 @@ export default defineComponent({
       state,
       overlay,
       error,
+      errorAvatarId,
       closeModal,
       selectedAvatar,
       additionalError,
@@ -107,10 +113,8 @@ export default defineComponent({
 
 .avatars-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(4, 100px);
   gap: 12px;
-  max-width: 600px;
-  padding: 8px 0;
 }
 
 .modal-header {
@@ -119,10 +123,9 @@ export default defineComponent({
   margin-bottom: 8px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 520px) {
   .avatars-container {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(3, 100px);
   }
 }
 </style>

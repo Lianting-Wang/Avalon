@@ -165,6 +165,7 @@ export default defineComponent({
         this.error = userOrError.error;
       } else {
         this.closeAuthModal();
+        this.$router.push('/profile');
       }
     },
     closeAuthModal() {

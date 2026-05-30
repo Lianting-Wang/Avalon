@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="avatar-item" @click="selectAvatar(avatar)">
+    <div class="avatar-item" :class="{ 'avatar-error-highlight': hasError }" @click="selectAvatar(avatar)">
       <Avatar :class="avatarClasses" :avatarID="avatar.id" />
       <div
         ref="icon"
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, computed, ref, toRef } from 'vue';
 import Avatar from '@/components/user/Avatar.vue';
 import { IAvatarInfo } from '@avalon/types';
 import { useFloating, offset, flip, shift } from '@floating-ui/vue';
@@ -44,6 +44,10 @@ export default defineComponent({
       required: true,
     },
     isSelected: {
+      type: Boolean,
+      default: false,
+    },
+    hasError: {
       type: Boolean,
       default: false,
     },
@@ -72,6 +76,8 @@ export default defineComponent({
       return classes;
     });
 
+    const hasError = toRef(props, 'hasError');
+
     return {
       floatingStyles,
       icon,
@@ -80,6 +86,7 @@ export default defineComponent({
       avatarClasses,
       selectAvatar: props.selectAvatar,
       avatar: props.avatar,
+      hasError,
     };
   },
 });
@@ -102,6 +109,25 @@ export default defineComponent({
 
 .avatar-item {
   position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 4px;
+
+  &.avatar-error-highlight {
+    animation: pulse-error 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-error {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgb(var(--v-theme-error));
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgb(var(--v-theme-error)),
+      0 0 15px rgba(var(--v-theme-error), 0.6);
+  }
 }
 
 .icon {
@@ -125,13 +151,16 @@ export default defineComponent({
 }
 
 .floating {
-  z-index: 1;
+  z-index: 100;
   font-size: 12px;
   background-color: rgb(var(--v-theme-surface));
   padding: 4px 8px;
   border-radius: 4px;
   border: 2px solid rgb(var(--v-theme-success));
   box-shadow: 0 2px 4px rgba(var(--v-theme-text-primary), 0.4);
+  position: fixed;
+  max-width: 200px;
+  word-wrap: break-word;
 }
 
 .not-availiable {

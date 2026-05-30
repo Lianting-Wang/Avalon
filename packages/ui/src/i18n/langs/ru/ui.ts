@@ -52,6 +52,11 @@ export default {
     resetRatingCooldown: 'Рейтинг можно сбрасывать только раз в 3 месяца',
     nextResetAvailable: 'Следующий сброс доступен',
     currentRating: 'Ваш текущий рейтинг',
+    account: 'Аккаунт',
+    dangerZone: 'Опасная зона',
+    logoutTitle: 'Выход из аккаунта',
+    logoutHint: 'Вы будете перенаправлены на главную страницу',
+    gameSettings: 'Игровые настройки',
   },
   breadCrumbs: {
     merlin: 'Мерлин',

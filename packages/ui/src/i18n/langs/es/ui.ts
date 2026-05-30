@@ -52,6 +52,11 @@ export default {
     resetRatingCooldown: 'La clasificación solo se puede restablecer una vez cada 3 meses',
     nextResetAvailable: 'Próximo restablecimiento disponible el',
     currentRating: 'Tu clasificación actual',
+    account: 'Cuenta',
+    dangerZone: 'Zona de Peligro',
+    logoutTitle: 'Cerrar sesión',
+    logoutHint: 'Serás redirigido a la página principal',
+    gameSettings: 'Configuración del Juego',
   },
   breadCrumbs: {
     merlin: 'Merlín',

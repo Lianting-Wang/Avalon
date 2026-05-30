@@ -25,7 +25,9 @@
         :rules="[validators.required, validators.spacesForbidden]"
         :label="$t('modal.password')"
       />
-      <v-btn :disabled="!formValid.loginForm" type="submit">{{ $t('modal.loginButton') }}</v-btn>
+      <v-btn :disabled="!formValid.loginForm" type="submit" color="primary" variant="elevated" class="submit-btn">{{
+        $t('modal.loginButton')
+      }}</v-btn>
     </v-form>
 
     <v-form
@@ -64,7 +66,14 @@
         :rules="[validators.required]"
         :label="$t('modal.username')"
       />
-      <v-btn :disabled="!formValid.registrationForm" type="submit">{{ $t('modal.registrationButton') }}</v-btn>
+      <v-btn
+        :disabled="!formValid.registrationForm"
+        type="submit"
+        color="primary"
+        variant="elevated"
+        class="submit-btn"
+        >{{ $t('modal.registrationButton') }}</v-btn
+      >
     </v-form>
   </BaseModal>
 </template>
@@ -176,5 +185,9 @@ export default defineComponent({
 .form {
   display: flex;
   flex-direction: column;
+
+  .v-btn {
+    min-height: 44px;
+  }
 }
 </style>

@@ -21,7 +21,9 @@
         :rules="[validators.required, validators.spacesForbidden, validators.email]"
         :label="$t('modal.newEmail')"
       />
-      <v-btn :disabled="!formValid.emailForm" type="submit">{{ $t('modal.changeButton') }}</v-btn>
+      <v-btn :disabled="!formValid.emailForm" type="submit" color="primary" variant="elevated" class="submit-btn">{{
+        $t('modal.changeButton')
+      }}</v-btn>
     </v-form>
 
     <v-form
@@ -42,7 +44,9 @@
         :rules="[validators.required, validators.spacesForbidden, validators.login]"
         :label="$t('modal.login')"
       />
-      <v-btn :disabled="!formValid.loginForm" type="submit">{{ $t('modal.changeButton') }}</v-btn>
+      <v-btn :disabled="!formValid.loginForm" type="submit" color="primary" variant="elevated" class="submit-btn">{{
+        $t('modal.changeButton')
+      }}</v-btn>
     </v-form>
 
     <v-form
@@ -67,7 +71,9 @@
         :hint="$t('validators.minCharacters', { count: 8 })"
         counter
       />
-      <v-btn :disabled="!formValid.passwordForm" type="submit">{{ $t('modal.changeButton') }}</v-btn>
+      <v-btn :disabled="!formValid.passwordForm" type="submit" color="primary" variant="elevated" class="submit-btn">{{
+        $t('modal.changeButton')
+      }}</v-btn>
     </v-form>
   </BaseModal>
 </template>
@@ -183,9 +189,16 @@ export default defineComponent({
 .form {
   display: flex;
   flex-direction: column;
+
+  .v-btn {
+    min-height: 44px;
+  }
 }
 
 .modal-header {
   text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 </style>

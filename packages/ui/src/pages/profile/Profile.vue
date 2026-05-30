@@ -1,102 +1,192 @@
 <template>
-  <div class="info-page-content profile-page">
-    <div v-if="$store.state.profile" class="profile-section">
-      <h2>
-        {{ $t('profile.profile') }}: {{ $store.state.profile.login }}
-        <span @click="updateLogin" class="material-icons email-change-icon"> edit </span>
-      </h2>
-      <Avatar @click="openAvatarModal" class="avatar" :avatarID="$store.state.profile.avatar" />
-      <v-btn class="mb-4 w-100" size="large" @click="goToStats">
-        <template v-slot:prepend>
-          <span class="material-icons"> insert_chart_outlined </span>
-        </template>
-        {{ $t('profile.stats') }}
-      </v-btn>
-      <v-btn class="mb-4 w-100" size="large" @click="goToAchievements">
-        <template v-slot:prepend>
-          <span class="material-icons"> star </span>
-        </template>
-        {{ $t('menu.achievements') }}
-      </v-btn>
-      <div class="mb-2">
-        {{ $t('modal.email') }}: {{ $store.state.profile.email }}
-        <span @click="updateEmail" class="material-icons email-change-icon"> edit </span>
-      </div>
-      <v-btn class="mb-4" @click="updatePassword">{{ $t('profile.changePassword') }}</v-btn>
-      <v-text-field
-        hide-details="auto"
-        v-model="username"
-        :label="$t('profile.username')"
-        class="w-100 mb-2"
-      ></v-text-field>
-      <div class="d-flex justify-space-between">
-        <v-btn :disabled="!updateAvailable" @click="update">{{ $t('profile.change') }}</v-btn>
-        <v-btn @click="logout">{{ $t('profile.logout') }}</v-btn>
-      </div>
+  <div class="profile-page-wrapper">
+    <div v-if="$store.state.profile" class="profile-page">
+      <!-- Секция профиля -->
+      <v-card class="profile-card mb-6" elevation="2">
+        <v-card-title class="card-header">
+          <span class="material-icons">person</span>
+          {{ $t('profile.profile') }}
+        </v-card-title>
+        <v-card-text>
+          <div class="profile-header">
+            <Avatar @click="openAvatarModal" class="avatar" :avatarID="$store.state.profile.avatar" />
+            <div class="profile-info">
+              <div class="profile-name">
+                {{ $store.state.profile.login }}
+                <span @click="updateLogin" class="edit-icon material-icons">edit</span>
+              </div>
+              <div class="profile-email">
+                {{ $store.state.profile.email }}
+                <span @click="updateEmail" class="edit-icon material-icons">edit</span>
+              </div>
+              <div v-if="!ratingLoading && trueSkillRating" class="profile-rating">
+                <UserTrueSkillRating :userID="$store.state.profile.id" />
+              </div>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <v-btn class="action-btn" size="large" @click="goToStats" variant="elevated" color="primary">
+              <template v-slot:prepend>
+                <span class="material-icons">analytics</span>
+              </template>
+              {{ $t('profile.stats') }}
+            </v-btn>
+            <v-btn class="action-btn" size="large" @click="goToAchievements" variant="elevated" color="primary">
+              <template v-slot:prepend>
+                <span class="material-icons">emoji_events</span>
+              </template>
+              {{ $t('menu.achievements') }}
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
 
-      <!-- Добавляем новую секцию для сброса рейтинга (отображается только если у пользователя есть рейтинг) -->
-      <div v-if="!ratingLoading && trueSkillRating" class="rating-reset-section mt-4">
-        <h3>{{ $t('profile.resetRating') }}</h3>
-        <div class="d-flex align-center mb-3">
-          <p class="mr-2">{{ $t('profile.currentRating') }}:</p>
-          <UserTrueSkillRating :userID="$store.state.profile.id" />
-        </div>
-        <p class="text-caption mb-2">{{ $t('profile.resetRatingHint') }}</p>
-
-        <div v-if="canResetRating">
-          <v-btn color="error" @click="confirmResetRating" class="mt-2" :loading="ratingResetLoading">
-            {{ $t('profile.resetRating') }}
+      <!-- Секция аккаунта -->
+      <v-card class="profile-card mb-6" elevation="2">
+        <v-card-title class="card-header">
+          <span class="material-icons">manage_accounts</span>
+          {{ $t('profile.account') }}
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            hide-details="auto"
+            v-model="username"
+            :label="$t('profile.username')"
+            class="w-100 mb-3"
+            variant="outlined"
+            density="comfortable"
+          >
+            <template v-slot:append-inner>
+              <v-btn :disabled="!updateAvailable" @click="update" size="small" variant="tonal" color="primary">
+                {{ $t('profile.change') }}
+              </v-btn>
+            </template>
+          </v-text-field>
+          <v-btn variant="outlined" color="primary" @click="updatePassword" class="w-100 password-btn">
+            <template v-slot:prepend>
+              <span class="material-icons">lock</span>
+            </template>
+            {{ $t('profile.changePassword') }}
           </v-btn>
-        </div>
-        <div v-else class="mt-2">
-          <p class="text-caption">
-            {{ $t('profile.resetRatingCooldown') }}
-          </p>
-          <p class="text-caption">{{ $t('profile.nextResetAvailable') }}: {{ formatNextResetDate }}</p>
-        </div>
-      </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- Секция настроек -->
+      <v-card class="profile-card mb-6" elevation="2">
+        <v-card-title class="card-header">
+          <span class="material-icons">settings</span>
+          {{ $t('profile.settings') }}
+        </v-card-title>
+        <v-card-text>
+          <v-select
+            :label="$t('profile.language')"
+            :items="availableLocales"
+            class="w-100 mb-3"
+            v-model="locale"
+            hide-details="auto"
+            variant="outlined"
+            density="comfortable"
+          ></v-select>
+          <v-select
+            :label="$t('profile.colorTheme')"
+            :items="availableThemes"
+            class="w-100 mb-3"
+            v-model="colorTheme"
+            hide-details="auto"
+            variant="outlined"
+            density="comfortable"
+          ></v-select>
+          <v-select
+            :label="$t('profile.imageStyle')"
+            :items="availableStyles"
+            class="w-100 mb-4"
+            v-model="imageStyle"
+            hide-details="auto"
+            variant="outlined"
+            density="comfortable"
+          ></v-select>
+
+          <div class="settings-divider"></div>
+          <div class="settings-subtitle">{{ $t('profile.gameSettings') }}</div>
+
+          <v-checkbox
+            v-model="hideSpoilers"
+            :hide-details="true"
+            :label="$t('profile.hideSpoilersHint')"
+            density="comfortable"
+          ></v-checkbox>
+          <v-checkbox
+            v-model="hideIndexInHistory"
+            :hide-details="true"
+            :label="$t('profile.hideIndexHint')"
+            density="comfortable"
+          ></v-checkbox>
+        </v-card-text>
+      </v-card>
+
+      <!-- Опасная зона -->
+      <v-card class="profile-card danger-zone mb-4" elevation="2">
+        <v-card-title class="card-header danger-header">
+          <span class="material-icons">warning</span>
+          {{ $t('profile.dangerZone') }}
+        </v-card-title>
+        <v-card-text>
+          <!-- Сброс рейтинга -->
+          <div v-if="!ratingLoading && trueSkillRating" class="danger-item">
+            <div class="danger-info">
+              <div class="danger-title">{{ $t('profile.resetRating') }}</div>
+              <div class="danger-description">{{ $t('profile.resetRatingHint') }}</div>
+              <div v-if="!canResetRating" class="danger-cooldown">
+                {{ $t('profile.nextResetAvailable') }}: {{ formatNextResetDate }}
+              </div>
+            </div>
+            <v-btn
+              color="error"
+              variant="outlined"
+              @click="confirmResetRating"
+              :disabled="!canResetRating"
+              :loading="ratingResetLoading"
+            >
+              {{ $t('profile.resetRating') }}
+            </v-btn>
+          </div>
+
+          <div class="settings-divider" v-if="!ratingLoading && trueSkillRating"></div>
+
+          <!-- Выход из аккаунта -->
+          <div class="danger-item">
+            <div class="danger-info">
+              <div class="danger-title">{{ $t('profile.logoutTitle') }}</div>
+              <div class="danger-description">{{ $t('profile.logoutHint') }}</div>
+            </div>
+            <v-btn color="error" variant="outlined" @click="logout">
+              <template v-slot:prepend>
+                <span class="material-icons">logout</span>
+              </template>
+              {{ $t('profile.logout') }}
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
     </div>
-    <div class="section-settings">
-      <h2>{{ $t('profile.settings') }}</h2>
-      <v-select
-        :label="$t('profile.language')"
-        :items="availableLocales"
-        class="w-100 mb-4"
-        v-model="locale"
-        hide-details="auto"
-      ></v-select>
-      <v-select
-        :label="$t('profile.colorTheme')"
-        :items="availableThemes"
-        class="w-100 mb-4"
-        v-model="colorTheme"
-        hide-details="auto"
-      ></v-select>
-      <v-select
-        :label="$t('profile.imageStyle')"
-        :items="availableStyles"
-        class="w-100 mb-4"
-        v-model="imageStyle"
-        hide-details="auto"
-      ></v-select>
-      <v-checkbox v-model="hideSpoilers" :hide-details="true" :label="$t('profile.hideSpoilersHint')"> </v-checkbox>
-      <v-checkbox v-model="hideIndexInHistory" :hide-details="true" :label="$t('profile.hideIndexHint')"> </v-checkbox>
-    </div>
+
     <AvatarModal ref="avatarModal" />
 
-    <!-- Добавляем модальное окно подтверждения сброса рейтинга -->
-    <v-dialog v-model="resetRatingDialog" max-width="500px">
-      <v-card>
-        <v-card-title>{{ $t('profile.resetRatingConfirmTitle') }}</v-card-title>
-        <v-card-text>
+    <!-- Модальное окно подтверждения сброса рейтинга -->
+    <v-dialog v-model="resetRatingDialog" max-width="420px">
+      <v-card class="reset-rating-dialog">
+        <v-card-title class="dialog-title">
+          <span class="material-icons warning-icon">warning</span>
+          {{ $t('profile.resetRatingConfirmTitle') }}
+        </v-card-title>
+        <v-card-text class="dialog-text">
           {{ $t('profile.resetRatingConfirmText') }}
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="resetRatingDialog = false">
+        <v-card-actions class="dialog-actions">
+          <v-btn color="primary" variant="tonal" @click="resetRatingDialog = false" class="dialog-btn">
             {{ $t('modal.cancel') }}
           </v-btn>
-          <v-btn color="error" @click="resetRating" :loading="ratingResetLoading">
+          <v-btn color="error" variant="elevated" @click="resetRating" :loading="ratingResetLoading" class="dialog-btn">
             {{ $t('profile.resetRating') }}
           </v-btn>
         </v-card-actions>
@@ -333,47 +423,291 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/info-page.scss';
-
-.profile-page {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
+.profile-page-wrapper {
+  padding: 60px 20px 20px 20px;
+  min-height: 100vh;
 }
 
-.email-change-icon {
-  cursor: pointer;
-  padding: 4px;
-  font-size: 18px;
+.profile-page {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: rgb(var(--v-theme-inset));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 24px;
+    background: rgba(var(--v-theme-primary), 0.08);
+
+    .material-icons {
+      font-size: 24px;
+      opacity: 0.8;
+    }
+  }
+
+  :deep(.v-card-text) {
+    padding: 24px;
+  }
+}
+
+// Шапка профиля
+.profile-header {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .avatar {
   cursor: pointer;
-  height: 200px;
-  width: 200px;
+  height: 120px;
+  width: 120px;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(var(--v-theme-primary), 0.2);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba(var(--v-theme-primary), 0.35);
+    border-color: rgba(var(--v-theme-primary), 0.4);
+  }
 }
 
-.avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(var(--v-theme-text-primary), 0.5);
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
 }
 
+.profile-name {
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-email {
+  font-size: 14px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-rating {
+  margin-top: 4px;
+}
+
+.edit-icon {
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 4px;
+  color: rgb(var(--v-theme-primary));
+
+  &:hover {
+    opacity: 1;
+    background-color: rgba(var(--v-theme-primary), 0.1);
+  }
+}
+
+// Кнопки действий
+.profile-actions {
+  display: flex;
+  gap: 16px;
+
+  .action-btn {
+    flex: 1;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 8px rgba(25, 118, 210, 0.35);
+    min-height: 48px;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.45);
+    }
+  }
+}
+
+// Кнопка изменения пароля
+.password-btn {
+  border-width: 2px;
+  font-weight: 500;
+
+  &:hover {
+    background-color: rgba(var(--v-theme-primary), 0.08);
+  }
+}
+
+// Настройки
+.settings-divider {
+  height: 1px;
+  background: rgba(var(--v-theme-on-surface), 0.1);
+  margin: 20px 0;
+}
+
+.settings-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+// Опасная зона
+.danger-zone {
+  border: 1px solid rgba(var(--v-theme-error), 0.3);
+
+  .danger-header {
+    background: rgba(var(--v-theme-error), 0.1);
+    color: rgb(var(--v-theme-error));
+
+    .material-icons {
+      color: rgb(var(--v-theme-error));
+    }
+  }
+}
+
+.danger-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.danger-info {
+  flex: 1;
+}
+
+.danger-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.danger-description {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.danger-cooldown {
+  font-size: 12px;
+  color: rgb(var(--v-theme-error));
+  margin-top: 4px;
+}
+
+// Адаптивность
 @media (max-width: 600px) {
-  .profile-page {
+  .profile-page-wrapper {
+    padding: 50px 12px 12px 12px;
+  }
+
+  .profile-card {
+    :deep(.v-card-text) {
+      padding: 16px;
+    }
+  }
+
+  .profile-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .avatar {
+    height: 80px;
+    width: 80px;
+    border-radius: 12px;
+  }
+
+  .profile-info {
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .profile-name {
+    font-size: 20px;
+    justify-content: flex-start;
+  }
+
+  .profile-email {
+    font-size: 13px;
+    justify-content: flex-start;
+  }
+
+  .profile-rating {
+    margin-top: 2px;
+  }
+
+  .profile-actions {
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-btn {
+    min-height: 44px;
+  }
+
+  .danger-item {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+
+    .v-btn {
+      width: 100%;
+    }
   }
 }
 
-@media (min-width: 600px) {
-  .profile-section,
-  .section-settings {
-    min-width: 45%;
-  }
-}
+// Диалог сброса рейтинга
+.reset-rating-dialog {
+  border-radius: 16px !important;
+  background-color: rgb(var(--v-theme-inset)) !important;
+  overflow: hidden;
 
-.rating-reset-section {
-  border-top: 1px solid rgba(var(--v-theme-text-primary), 0.1);
-  padding-top: 16px;
-  margin-top: 16px;
+  .dialog-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px 12px;
+    font-size: 18px;
+    font-weight: 600;
+
+    .warning-icon {
+      color: rgb(var(--v-theme-warning));
+      font-size: 28px;
+    }
+  }
+
+  .dialog-text {
+    padding: 0 24px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+
+  .dialog-actions {
+    padding: 12px 24px 20px;
+    gap: 12px;
+
+    .dialog-btn {
+      flex: 1;
+      min-height: 44px;
+    }
+  }
 }
 </style>

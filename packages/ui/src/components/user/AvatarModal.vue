@@ -106,13 +106,23 @@ export default defineComponent({
 }
 
 .avatars-container {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+  max-width: 600px;
+  padding: 8px 0;
 }
 
 .modal-header {
   text-align: center;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .avatars-container {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+  }
 }
 </style>

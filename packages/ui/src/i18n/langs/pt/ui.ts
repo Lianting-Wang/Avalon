@@ -51,6 +51,11 @@ export default {
     resetRatingCooldown: 'A classificação só pode ser redefinida uma vez a cada 3 meses',
     nextResetAvailable: 'Próxima redefinição disponível em',
     currentRating: 'Sua classificação atual',
+    account: 'Conta',
+    dangerZone: 'Zona de Perigo',
+    logoutTitle: 'Sair',
+    logoutHint: 'Você será redirecionado para a página principal',
+    gameSettings: 'Configurações do Jogo',
   },
   breadCrumbs: {
     merlin: 'Merlin',

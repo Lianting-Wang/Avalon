@@ -51,6 +51,11 @@ export default {
     resetRatingCooldown: '评分每3个月只能重置一次',
     nextResetAvailable: '下次重置可用时间',
     currentRating: '您当前的评分',
+    account: '账户',
+    dangerZone: '危险区域',
+    logoutTitle: '退出登录',
+    logoutHint: '您将被重定向到主页',
+    gameSettings: '游戏设置',
   },
   breadCrumbs: {
     merlin: '梅林',

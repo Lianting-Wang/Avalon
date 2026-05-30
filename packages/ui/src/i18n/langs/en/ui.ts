@@ -51,6 +51,11 @@ export default {
     resetRatingCooldown: 'Rating can only be reset once every 3 months',
     nextResetAvailable: 'Next reset available on',
     currentRating: 'Your current rating',
+    account: 'Account',
+    dangerZone: 'Danger Zone',
+    logoutTitle: 'Logout',
+    logoutHint: 'You will be redirected to the main page',
+    gameSettings: 'Game Settings',
   },
   breadCrumbs: {
     merlin: 'Merlin',

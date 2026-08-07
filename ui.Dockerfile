@@ -20,4 +20,4 @@ RUN npm run build:ui
 FROM --platform=${BUILDPLATFORM} nginx AS production-stage
 RUN mkdir /app
 COPY --from=build-stage /home/pptruser/app/packages/ui/dist /app
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.selfhost.conf /etc/nginx/nginx.conf

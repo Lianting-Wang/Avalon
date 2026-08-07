@@ -1,0 +1,64 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: avalon-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - avalon-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet --host localhost --port 27017 -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: avalon-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MONGODB_USER: ${MONGODB_USER}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      DB_NAME: ${DB_NAME}
+      SECRET_KEY: ${SECRET_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - avalon-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ui.Dockerfile
+    container_name: avalon-frontend
+    restart: unless-stopped
+    ports:
+      - "${AVALON_PORT:-8080}:80"
+    depends_on:
+      - backend
+    networks:
+      - avalon-net
+
+volumes:
+  mongodb_data:
+
+networks:
+  avalon-net:
+    driver: bridge

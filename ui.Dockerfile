@@ -1,25 +1,28 @@
-FROM --platform=${BUILDPLATFORM} ghcr.io/puppeteer/puppeteer:22.5.0 AS build-stage
+FROM node:21-slim AS build-stage
 
-ARG APP_DIR=/home/pptruser/app
+ARG APP_DIR=/app
 ARG SITE_URL=http://localhost:8080
 ENV SITE_URL=${SITE_URL}
 
-RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
-RUN chown pptruser:pptruser ${APP_DIR}
 
-COPY --chown=pptruser:pptruser package*.json ${APP_DIR}/
-COPY --chown=pptruser:pptruser packages/ui/package.json ${APP_DIR}/packages/ui/
-COPY --chown=pptruser:pptruser packages/types/package.json ${APP_DIR}/packages/types/
-COPY --chown=pptruser:pptruser packages/backend/package.json ${APP_DIR}/packages/backend/
+# Self-host builds do not need Chromium/Puppeteer prerendering.
+ENV SELF_HOST=true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-USER pptruser
+# Install dependencies
+COPY package*.json ./
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/types/package.json ./packages/types/
+COPY packages/backend/package.json ./packages/backend/
+
 RUN npm install
 
-COPY --chown=pptruser:pptruser . .
+# Copy source and build frontend
+COPY . .
 RUN npm run build:ui
 
-FROM --platform=${BUILDPLATFORM} nginx AS production-stage
-RUN mkdir /app
-COPY --from=build-stage /home/pptruser/app/packages/ui/dist /app
+FROM nginx:alpine AS production-stage
+
+COPY --from=build-stage /app/packages/ui/dist /app
 COPY nginx.selfhost.conf /etc/nginx/nginx.conf

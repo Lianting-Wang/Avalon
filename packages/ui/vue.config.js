@@ -11,6 +11,8 @@ const { routesSeo } = require('./src/router/seo');
 const defaultLanguage = 'zh-CN';
 const siteURL = (process.env.SITE_URL || 'http://localhost').replace(/\/+$/, '');
 
+const isSelfHosted = process.env.SELF_HOST === 'true';
+
 const multiLangRoutes = Object.values(routesSeo).reduce((acc, route) => {
   if (!route.meta.multiLanguage) {
     acc.push(route);
@@ -52,12 +54,17 @@ module.exports = defineConfig({
       };
     }
 
-    return {
-      plugins: [
-        new webpack.DefinePlugin({
-          APP_VERSION: JSON.stringify(require('./package.json').version),
-        }),
-        new VuetifyPlugin(),
+    const plugins = [
+      new webpack.DefinePlugin({
+        APP_VERSION: JSON.stringify(require('./package.json').version),
+      }),
+      new VuetifyPlugin(),
+    ];
+
+    // SEO generation is only required for the public avalon-game.com build.
+    // Self-hosted deployments skip Puppeteer so ARM64 systems can build natively.
+    if (!isSelfHosted) {
+      plugins.push(
         new SitemapPlugin({
           base: `${siteURL}/`,
           paths,
@@ -75,7 +82,9 @@ module.exports = defineConfig({
             timeout: 100000,
           }),
         }),
-      ],
-    };
+      );
+    }
+
+    return { plugins };
   },
 });

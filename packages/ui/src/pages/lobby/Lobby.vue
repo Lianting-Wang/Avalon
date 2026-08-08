@@ -1,11 +1,5 @@
 <template>
   <div class="lobby">
-    <div class="alert-container">
-      <TemporaryAlert id="discordchat">
-        <div v-html="$t('alert.contentdiscordchat')"></div>
-      </TemporaryAlert>
-    </div>
-
     <span class="online">{{ $t('mainPage.online', { count: online }) }}</span>
 
     <h1 class="lobby-header">{{ $t('mainPage.header') }}</h1>
@@ -67,7 +61,6 @@ import { useStore } from '@/store';
 import type { TRoomsList } from '@avalon/types';
 import { socket } from '@/api/socket';
 import eventBus from '@/helpers/event-bus';
-import TemporaryAlert from '@/components/feedback/TemporaryAlert.vue';
 import OptionsPreview from '@/components/view/information/OptionsPreview.vue';
 import RotatingTopPlayer from '@/components/stats/RotatingTopPlayer.vue'; // Import the new component
 import type { GameOptionsRoles, GameOptionsAddons } from '@avalon/types';
@@ -75,7 +68,6 @@ import { useUserProfile } from '@/helpers/composables';
 
 export default defineComponent({
   components: {
-    TemporaryAlert,
     OptionsPreview,
     RotatingTopPlayer,
   },
@@ -224,17 +216,6 @@ export default defineComponent({
 
 .players-amount {
   align-self: center;
-}
-
-.alert-container {
-  margin-top: 20px;
-  margin-left: 10px;
-  margin-right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 90%;
-  max-width: 800px;
 }
 
 @import '@/styles/loyalty-icons.scss';

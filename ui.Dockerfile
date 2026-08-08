@@ -1,9 +1,11 @@
 FROM --platform=${BUILDPLATFORM} ghcr.io/puppeteer/puppeteer:22.5.0 AS build-stage
 
 ARG APP_DIR=/home/pptruser/app
+ARG SITE_URL=http://localhost:8080
+ENV SITE_URL=${SITE_URL}
+
 RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
-
 RUN chown pptruser:pptruser ${APP_DIR}
 
 COPY --chown=pptruser:pptruser package*.json ${APP_DIR}/

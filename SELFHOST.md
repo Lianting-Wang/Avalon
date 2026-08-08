@@ -99,3 +99,36 @@ git merge upstream/master
 
 The self-host changes are intentionally small so upstream merges should usually
 be straightforward.
+
+## Language routing customization
+
+This overlay makes Simplified Chinese (`zh-CN`) the canonical default language:
+
+- `/` -> Simplified Chinese
+- `/wiki/` -> Simplified Chinese
+- `/en/` -> English
+- `/en/wiki/` -> English
+- `/zh-tw/` -> Traditional Chinese
+- `/ru/`, `/es/`, `/pt/` -> the existing additional translations
+- legacy `/zh-cn/...` URLs redirect to the equivalent no-prefix Chinese URL
+
+The URL is authoritative. A browser language or an old saved language preference
+will not silently turn `/` into English. Internal navigation also preserves the
+current prefixed language.
+
+The upstream Discord/GitHub social buttons in the header and the corresponding
+external links on the About page are removed.
+
+## Upstream branding and analytics removal
+
+The customization also removes upstream-specific external integrations that
+should not be inherited by a private fork:
+
+- Discord header link
+- upstream GitHub header/About links
+- Google Analytics tag
+- Yandex Metrika tag
+- Google/Yandex site-verification metadata
+
+The production sitemap now uses `FRONTEND_URL` (passed into the UI build as
+`SITE_URL`) rather than `https://avalon-game.com/`.

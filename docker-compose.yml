@@ -47,6 +47,8 @@ services:
     build:
       context: .
       dockerfile: ui.Dockerfile
+      args:
+        SITE_URL: ${FRONTEND_URL}
     container_name: avalon-frontend
     restart: unless-stopped
     ports:

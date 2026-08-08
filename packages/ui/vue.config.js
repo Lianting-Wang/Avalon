@@ -7,29 +7,27 @@ const PrerendererWebpackPlugin = require('@prerenderer/webpack-plugin');
 const PuppeteerRenderer = require('@prerenderer/renderer-puppeteer');
 const { VuetifyPlugin } = require('webpack-plugin-vuetify');
 const { routesSeo } = require('./src/router/seo');
-const { yaMetrika, gtag } = require('./const');
 
-const multiLangRoutes = Object.values(routesSeo).reduce((acc, el) => {
-  if (el.meta.multiLanguage) {
-    acc.push(
-      ...Object.keys(el.meta.multiLanguage).map((lang) => {
-        return {
-          ...el,
-          path: `/${lang}${el.path}`.toLowerCase(),
-        };
-      }),
-      {
-        ...el,
-      },
-    );
-  } else {
-    acc.push(el);
+const defaultLanguage = 'zh-CN';
+const siteURL = (process.env.SITE_URL || 'http://localhost').replace(/\/+$/, '');
+
+const multiLangRoutes = Object.values(routesSeo).reduce((acc, route) => {
+  if (!route.meta.multiLanguage) {
+    acc.push(route);
+    return acc;
   }
+
+  Object.keys(route.meta.multiLanguage).forEach((language) => {
+    acc.push({
+      ...route,
+      path: language === defaultLanguage ? route.path : `/${language}${route.path}`.toLowerCase(),
+    });
+  });
 
   return acc;
 }, []);
 
-const paths = multiLangRoutes.filter((el) => !el.meta.skipSiteMap);
+const paths = multiLangRoutes.filter((route) => !route.meta.skipSiteMap);
 
 module.exports = defineConfig({
   transpileDependencies: true,
@@ -41,21 +39,6 @@ module.exports = defineConfig({
         `,
       },
     },
-  },
-  chainWebpack: (config) => {
-    config.plugin('html').tap((args) => {
-      const templateFunc = args[0].templateParameters;
-
-      args[0].templateParameters = (...args) => {
-        return {
-          ...templateFunc(...args),
-          yaMetrika: process.env.NODE_ENV !== 'production' ? '' : yaMetrika,
-          gtag: process.env.NODE_ENV !== 'production' ? '' : gtag,
-        };
-      };
-
-      return args;
-    });
   },
   configureWebpack: () => {
     if (process.env.NODE_ENV !== 'production') {
@@ -76,7 +59,7 @@ module.exports = defineConfig({
         }),
         new VuetifyPlugin(),
         new SitemapPlugin({
-          base: 'https://avalon-game.com/',
+          base: `${siteURL}/`,
           paths,
           options: {
             filename: 'sitemap.xml',
@@ -87,9 +70,9 @@ module.exports = defineConfig({
           },
         }),
         new PrerendererWebpackPlugin({
-          routes: multiLangRoutes.filter((el) => el.meta.prerender).map((el) => el.path),
+          routes: multiLangRoutes.filter((route) => route.meta.prerender).map((route) => route.path),
           renderer: new PuppeteerRenderer({
-            timeout: 100000, // Таймаут в 100 секунд
+            timeout: 100000,
           }),
         }),
       ],

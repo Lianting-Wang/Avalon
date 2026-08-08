@@ -4,8 +4,7 @@
       <v-btn class="mr-1" density="comfortable" variant="plain" color="invert" size="large" to="/" icon>
         <v-icon class="home-icon" size="large" icon="fa:fa-solid fa-house" />
       </v-btn>
-      <Socials class="mr-4" />
-      <ConnectStatus class="connect-status" />
+      <ConnectStatus class="connect-status ml-2" />
     </div>
     <div class="header-right-container d-flex align-center mr-2">
       <DevPanel />
@@ -40,11 +39,11 @@ import Menu from '@/components/header/Menu.vue';
 import ConnectStatus from '@/components/feedback/ConnectStatus.vue';
 import InfoSnackbar from '@/components/feedback/InfoSnackbar.vue';
 import Version from '@/components/feedback/Version.vue';
-import Socials from '@/components/feedback/Socials.vue';
 import SpoilerEye from '@/components/feedback/SpoilerEye.vue';
 import ThemeToggle from '@/components/feedback/ThemeToggle.vue';
 import DevPanel from '@/components/dev/DevPanel.vue';
 import AchievementPopupsContainer from '@/components/achievements/AchievementPopupsContainer.vue';
+import { buildLocalizedPath, TLanguage } from '@/helpers/i18n';
 import { isHolidays } from '@/helpers/utility';
 import eventBus from '@/helpers/event-bus';
 
@@ -54,7 +53,6 @@ export default defineComponent({
     ConnectStatus,
     InfoSnackbar,
     Version,
-    Socials,
     Menu,
     SpoilerEye,
     ThemeToggle,
@@ -70,6 +68,16 @@ export default defineComponent({
   computed: {
     currentRoute() {
       return this.$route.name;
+    },
+  },
+  watch: {
+    '$i18n.locale'(newLocale: TLanguage) {
+      const localizedPath = buildLocalizedPath(this.$route.path, newLocale);
+
+      if (localizedPath !== this.$route.path) {
+        const queryAndHash = this.$route.fullPath.slice(this.$route.path.length);
+        window.location.assign(localizedPath + queryAndHash);
+      }
     },
   },
   methods: {
